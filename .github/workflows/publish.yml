@@ -1,0 +1,68 @@
+name: Publish Package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@askides'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Determine version and tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            # PR: Use canary version with PR number
+            PR_NUMBER=${{ github.event.pull_request.number }}
+            VERSION="0.0.0-pr${PR_NUMBER}.$(date +%s)"
+            TAG="next"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+          else
+            # Main branch: Use package.json version with latest tag
+            VERSION=$(node -p "require('./package.json').version")
+            TAG="latest"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "tag=$TAG" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update package version (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          npm pkg set version="${{ steps.version.outputs.version }}"
+
+      - name: Publish to GitHub Packages
+        run: |
+          pnpm publish --tag "${{ steps.version.outputs.tag }}" --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

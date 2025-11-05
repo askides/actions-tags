@@ -1,0 +1,19 @@
+{
+  "name": "@askides/actions-tags",
+  "version": "0.0.0",
+  "description": "A simple package with a sum function",
+  "type": "module",
+  "main": "index.mjs",
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
