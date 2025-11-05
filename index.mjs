@@ -18,3 +18,13 @@ export function sub(a, b) {
   return a - b;
 }
 
+/**
+ * Mul function that multiplies two numbers
+ * @param {number} a - First number
+ * @param {number} b - Second number
+ * @returns {number} The product of a and b
+ */
+export function mul(a, b) {
+  return a * b;
+}
+
