@@ -14,7 +14,7 @@ jobs:
     permissions:
       contents: write
       packages: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,9 +27,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@askides'
+          node-version: "20"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@askides"
 
       - name: Install pnpm
         run: npm install -g pnpm
@@ -48,7 +48,8 @@ jobs:
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "tag=$TAG" >> $GITHUB_OUTPUT
           else
-            # Main branch: Use package.json version with latest tag
+            # Main branch: Bump version and use latest tag
+            npm version patch --no-git-tag-version
             VERSION=$(node -p "require('./package.json').version")
             TAG="latest"
             echo "version=$VERSION" >> $GITHUB_OUTPUT
@@ -65,4 +66,3 @@ jobs:
           pnpm publish --tag "${{ steps.version.outputs.tag }}" --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
